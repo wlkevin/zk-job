@@ -1,4 +1,4 @@
-package com.job.main_project;
+package com.job.core;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

@@ -1,4 +1,4 @@
-package com.job.main_project;
+package com.job.core;
 
 /**
  * Hello world!
