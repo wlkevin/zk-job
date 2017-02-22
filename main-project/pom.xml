@@ -27,5 +27,6 @@
     <module>job-service</module>
     <module>job-dao</module>
     <module>job-web</module>
+    <module>job-util</module>
   </modules>
 </project>
