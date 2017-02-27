@@ -1,5 +1,6 @@
 package com.job.core.zk.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -9,6 +10,8 @@ import org.apache.curator.retry.RetryNTimes;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.zookeeper.data.ACL;
+import org.apache.zookeeper.data.Stat;
 
 import com.job.core.zk.IZkCurator;
 
@@ -31,10 +34,10 @@ public class ZkCurator implements IZkCurator {
 	/**
 	 * 创建子节点
 	 */
-	public boolean createChildren(CuratorFramework client, String pNode, String cNode, CreateMode mode, Ids ids) {
+	public boolean createChildren( String pNode, String cNode, CreateMode mode, ArrayList<ACL> acls) {
 
 		try {
-			client.create().withMode(mode).withACL(Ids.OPEN_ACL_UNSAFE).forPath(pNode, cNode.getBytes());
+			client.create().withMode(mode).withACL(acls).forPath(pNode, cNode.getBytes());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -44,7 +47,7 @@ public class ZkCurator implements IZkCurator {
 	/**
 	 * 删除节点
 	 */
-	public boolean deleteChildren(CuratorFramework client, String path) {
+	public boolean deleteChildren(String path) {
 
 		try {
 			client.delete().withVersion(-1).forPath(path);
@@ -58,7 +61,7 @@ public class ZkCurator implements IZkCurator {
 	/**
 	 * 获取子节点
 	 */
-	public List<String> getChildren(CuratorFramework client, String path, CuratorWatcher watcher) {
+	public List<String> getChildren(String path, CuratorWatcher watcher) {
 
 		if (watcher != null) {
 			defaultWatcher = watcher;
@@ -87,6 +90,47 @@ public class ZkCurator implements IZkCurator {
 	public boolean stop() {
 
 		client.close();
+		return false;
+	}
+
+	public String getData(String path) {
+		
+		try {
+			byte[] data=client.getData().forPath(path);
+			return new String(data,"UTF-8");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public boolean setData(String path, String data) {
+		
+		try {
+			Stat stat=client.setData().forPath(path, data.getBytes());
+			if(stat.getMzxid()>0)
+				return true;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	/**
+	 * 检查节点是否存在
+	 */
+	public boolean checkNodeExists(String path) {
+		
+		try {
+			Stat stat=client.checkExists().forPath(path);
+			if(stat!=null)
+				return true;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return false;
 	}
 
