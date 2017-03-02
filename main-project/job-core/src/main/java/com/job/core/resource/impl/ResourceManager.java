@@ -70,7 +70,7 @@ public class ResourceManager implements IResourceManager {
 		}
 		//获取任务
 		List<String> jobs=getJobs("job");
-		
+		parseJobs(jobs);
 		TaskRunner runner=new TaskRunner();
 		executor.execute(runner);
 		return true;
@@ -131,6 +131,12 @@ public class ResourceManager implements IResourceManager {
 		if(jobs==null || jobs.isEmpty())
 			return;
 		int leng=jobs.size();
+		for(int index=0;index<leng;index++){
+			String job=jobs.get(index);
+			String data=curator.getData(job);
+			Task task=com.alibaba.fastjson.JSONObject.parseObject(data, Task.class);
+			queue.add(task);
+		}
 	}
 
 }
